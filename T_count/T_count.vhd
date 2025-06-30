@@ -1,6 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity T_count is
     Port (
@@ -11,11 +11,13 @@ entity T_count is
 end T_count;
 
 architecture Behavioral of T_count is
-    signal P_ext : STD_LOGIC_VECTOR(8 downto 0);
+    signal D_u  : unsigned(8 downto 0);
+    signal P_u  : unsigned(8 downto 0);
+    signal T_u  : unsigned(8 downto 0);
 begin
-    -- Extensão de P_count (7 bits) para 9 bits
-    P_ext <= "00" & P_count;
+    D_u <= unsigned(D_count);
+    P_u <= ("00" & unsigned(P_count)); -- extensão para 9 bits
+    T_u <= D_u - P_u;
 
-    -- Troco é a diferença entre o valor inserido e o preço
-    T <= D_count - P_ext;
+    T <= std_logic_vector(T_u);
 end Behavioral;

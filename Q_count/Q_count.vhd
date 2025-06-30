@@ -1,6 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity Q_count is
     Port (
@@ -12,12 +12,12 @@ entity Q_count is
 end Q_count;
 
 architecture Behavioral of Q_count is
-    signal count : STD_LOGIC_VECTOR(1 downto 0) := "00";
+    signal count : unsigned(1 downto 0) := (others => '0');
 begin
     process(clk, reset)
     begin
         if reset = '1' then
-            count <= "00";
+            count <= (others => '0');
         elsif rising_edge(clk) then
             if increment = '1' then
                 count <= count + 1;
@@ -25,5 +25,5 @@ begin
         end if;
     end process;
 
-    Q <= count;
+    Q <= std_logic_vector(count);
 end Behavioral;
