@@ -1,0 +1,9 @@
+# Ignora tudo por padrão
+*
+
+# Permite este próprio arquivo
+!.gitignore
+
+# Permite recursivamente pastas e arquivos .vhd
+!*/
+!*.vhd
