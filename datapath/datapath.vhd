@@ -12,19 +12,19 @@ entity Datapath is
         preco2 : in  STD_LOGIC_VECTOR(3 downto 0);
         inc_q  : in  STD_LOGIC; -- incrementa quantidade
         venda  : in  STD_LOGIC; -- finaliza venda
-        troco  : out STD_LOGIC_VECTOR(8 downto 0);
+        troco  : out STD_LOGIC_VECTOR(3 downto 0);
         lucro  : out STD_LOGIC_VECTOR(8 downto 0)
     );
 end Datapath;
 
 architecture Structural of Datapath is
-    signal D_val   : STD_LOGIC_VECTOR(4 downto 0);
+    signal D_val   : STD_LOGIC_VECTOR(3 downto 0);
     signal Q_val   : STD_LOGIC_VECTOR(1 downto 0);
     signal preco_s : STD_LOGIC_VECTOR(3 downto 0);
-    signal P_temp  : STD_LOGIC_VECTOR(5 downto 0);
+    signal P_temp  : STD_LOGIC_VECTOR(3 downto 0);
     signal P_cnt   : STD_LOGIC_VECTOR(6 downto 0);
-    signal D_ext   : STD_LOGIC_VECTOR(8 downto 0);
-    signal troco_s : STD_LOGIC_VECTOR(8 downto 0);
+    signal D_ext   : STD_LOGIC_VECTOR(3 downto 0);
+    signal troco_s : STD_LOGIC_VECTOR(3 downto 0);
     signal lucro_s : STD_LOGIC_VECTOR(8 downto 0);
 begin
     D_counter: entity work.D_count
@@ -58,13 +58,13 @@ begin
             resultado      => P_temp
         );
 
-    P_cnt <= '0' & P_temp; -- extensao para 7 bits
-    D_ext <= "0000" & D_val; -- extensao para 9 bits
+    P_cnt <= "000" & P_temp; -- extensao para 7 bits
+    D_ext <= D_val; -- sem extensao, 4 bits
 
     CalculaTroco: entity work.T_count
         port map(
             D_count => D_ext,
-            P_count => P_cnt,
+            P_count => P_temp,
             T       => troco_s
         );
 
