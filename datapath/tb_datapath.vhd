@@ -18,7 +18,7 @@ architecture behavior of tb_Datapath is
             preco2  : in  STD_LOGIC_VECTOR(3 downto 0);
             inc_q   : in  STD_LOGIC;
             venda   : in  STD_LOGIC;
-            troco   : out STD_LOGIC_VECTOR(8 downto 0);
+            troco   : out STD_LOGIC_VECTOR(3 downto 0);
             lucro   : out STD_LOGIC_VECTOR(8 downto 0)
         );
     end component;
@@ -32,7 +32,7 @@ architecture behavior of tb_Datapath is
     signal preco2  : STD_LOGIC_VECTOR(3 downto 0) := "0010"; -- R$2,00
     signal inc_q   : STD_LOGIC := '0';
     signal venda   : STD_LOGIC := '0';
-    signal troco   : STD_LOGIC_VECTOR(8 downto 0);
+    signal troco   : STD_LOGIC_VECTOR(3 downto 0);
     signal lucro   : STD_LOGIC_VECTOR(8 downto 0);
 
     constant clk_period : time := 10 ns;

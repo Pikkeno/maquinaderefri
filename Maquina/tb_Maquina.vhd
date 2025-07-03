@@ -18,7 +18,7 @@ architecture behavior of tb_Maquina is
             refri    : in  STD_LOGIC;
             btn_qtd  : in  STD_LOGIC;
             dinheiro : in  STD_LOGIC;
-            troco    : out STD_LOGIC_VECTOR(8 downto 0);
+            troco    : out STD_LOGIC_VECTOR(3 downto 0);
             lucro    : out STD_LOGIC_VECTOR(8 downto 0)
         );
     end component;
@@ -32,7 +32,7 @@ architecture behavior of tb_Maquina is
     signal refri    : STD_LOGIC := '1'; -- Coca-Cola
     signal btn_qtd  : STD_LOGIC := '0';
     signal dinheiro : STD_LOGIC := '0';
-    signal troco    : STD_LOGIC_VECTOR(8 downto 0);
+    signal troco    : STD_LOGIC_VECTOR(3 downto 0);
     signal lucro    : STD_LOGIC_VECTOR(8 downto 0);
 
     constant clk_period : time := 10 ns;

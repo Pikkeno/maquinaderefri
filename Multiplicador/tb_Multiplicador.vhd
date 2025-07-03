@@ -12,14 +12,14 @@ architecture behavior of tb_Multiplicador is
         Port (
             preco_unitario : in  STD_LOGIC_VECTOR(3 downto 0);
             quantidade     : in  STD_LOGIC_VECTOR(1 downto 0);
-            resultado      : out STD_LOGIC_VECTOR(5 downto 0)
+            resultado      : out STD_LOGIC_VECTOR(3 downto 0)
         );
     end component;
 
     -- Sinais de estímulo
     signal preco_unitario : STD_LOGIC_VECTOR(3 downto 0) := (others => '0');
     signal quantidade     : STD_LOGIC_VECTOR(1 downto 0) := (others => '0');
-    signal resultado      : STD_LOGIC_VECTOR(5 downto 0);
+    signal resultado      : STD_LOGIC_VECTOR(3 downto 0);
 
 begin
 

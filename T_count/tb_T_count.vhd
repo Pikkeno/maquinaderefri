@@ -10,16 +10,16 @@ architecture behavior of tb_T_count is
     -- Componente a ser testado
     component T_count
         Port (
-            D_count : in  STD_LOGIC_VECTOR(8 downto 0);
-            P_count : in  STD_LOGIC_VECTOR(6 downto 0);
-            T       : out STD_LOGIC_VECTOR(8 downto 0)
+            D_count : in  STD_LOGIC_VECTOR(3 downto 0);
+            P_count : in  STD_LOGIC_VECTOR(3 downto 0);
+            T       : out STD_LOGIC_VECTOR(3 downto 0)
         );
     end component;
 
     -- Sinais
-    signal D_count : STD_LOGIC_VECTOR(8 downto 0) := (others => '0');
-    signal P_count : STD_LOGIC_VECTOR(6 downto 0) := (others => '0');
-    signal T       : STD_LOGIC_VECTOR(8 downto 0);
+    signal D_count : STD_LOGIC_VECTOR(3 downto 0) := (others => '0');
+    signal P_count : STD_LOGIC_VECTOR(3 downto 0) := (others => '0');
+    signal T       : STD_LOGIC_VECTOR(3 downto 0);
 
 begin
 
@@ -34,29 +34,24 @@ begin
     -- Processo de estímulo
     stim_proc: process
     begin
-        -- D = 20, P = 6 → T = 14
-        D_count <= "000010100";  -- 20
-        P_count <= "0000110";    -- 6
+        -- D = 10, P = 6 → T = 4
+        D_count <= "1010";  -- 10
+        P_count <= "0110";  -- 6
         wait for 10 ns;
 
-        -- D = 50, P = 50 → T = 0
-        D_count <= "000110010";  -- 50
-        P_count <= "0110010";    -- 50
+        -- D = 15, P = 15 → T = 0
+        D_count <= "1111";
+        P_count <= "1111";
         wait for 10 ns;
 
-        -- D = 100, P = 25 → T = 75
-        D_count <= "001100100";  -- 100
-        P_count <= "0011001";    -- 25
-        wait for 10 ns;
-
-        -- D = 127, P = 0 → T = 127
-        D_count <= "011111111";
-        P_count <= "0000000";
+        -- D = 8, P = 3 → T = 5
+        D_count <= "1000";
+        P_count <= "0011";
         wait for 10 ns;
 
         -- D = 0, P = 0 → T = 0
-        D_count <= "000000000";
-        P_count <= "0000000";
+        D_count <= "0000";
+        P_count <= "0000";
         wait for 10 ns;
 
         wait;

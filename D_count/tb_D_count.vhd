@@ -13,7 +13,7 @@ architecture behavior of tb_D_count is
             clk   : in  STD_LOGIC;
             reset : in  STD_LOGIC;
             coin  : in  STD_LOGIC;
-            D     : out STD_LOGIC_VECTOR(4 downto 0)
+            D     : out STD_LOGIC_VECTOR(3 downto 0)
         );
     end component;
 
@@ -21,7 +21,7 @@ architecture behavior of tb_D_count is
     signal clk   : STD_LOGIC := '0';
     signal reset : STD_LOGIC := '0';
     signal coin  : STD_LOGIC := '0';
-    signal D     : STD_LOGIC_VECTOR(4 downto 0);
+    signal D     : STD_LOGIC_VECTOR(3 downto 0);
 
     -- Clock de 10 ns (100 MHz)
     constant clk_period : time := 10 ns;
