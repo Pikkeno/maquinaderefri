@@ -18,51 +18,80 @@ entity Controladora is
     );
 end Controladora;
 
-architecture Behavioral of Controladora is
+architecture FSM_Moore_TPM of Controladora is
+
     type state_type is (
-        Inicio,
-        EscolheQtd,
-        EscolheRefri,
-        EsperaDinheiro,
-        FinalizaVenda
+        Idle,               -- Espera o copo (I=1)
+        SelecionaQtd,       -- Cliente seleciona quantidade
+        SelecionaRefri,     -- Cliente seleciona refri
+        AguardaPagamento,   -- Espera inserir dinheiro suficiente
+        LiberaVenda         -- Libera bebida e atualiza lucro
     );
-    signal state : state_type := Inicio;
+
+    signal estado_atual, proximo_estado : state_type;
+
+    -- sinais internos de saída
+    signal inc_q_s, coin_s, venda_s : STD_LOGIC;
+    signal sel_s : STD_LOGIC;
+
 begin
+
+    -- PROCESSO 1: Registrador de estado
     process(clk, reset)
     begin
         if reset = '1' then
-            state <= Inicio;
+            estado_atual <= Idle;
         elsif rising_edge(clk) then
-            case state is
-                when Inicio =>
-                    if I = '1' then
-                        state <= EscolheQtd;
-                    end if;
-
-                when EscolheQtd =>
-                    if btn_qtd = '1' then
-                        state <= EscolheRefri;
-                    end if;
-
-                when EscolheRefri =>
-                    if refri = '0' or refri = '1' then
-                        state <= EsperaDinheiro;
-                    end if;
-
-                when EsperaDinheiro =>
-                    if dinheiro = '1' then
-                        state <= FinalizaVenda;
-                    end if;
-
-                when FinalizaVenda =>
-                    state <= Inicio;
-            end case;
+            estado_atual <= proximo_estado;
         end if;
     end process;
 
-    -- sinais de controle
-    inc_q <= '1' when state = EscolheQtd and btn_qtd = '1' else '0';
-    sel   <= refri;
-    coin  <= '1' when state = EsperaDinheiro and dinheiro = '1' else '0';
-    venda <= '1' when state = FinalizaVenda else '0';
-end Behavioral;
+    -- PROCESSO 2: Lógica combinacional (próximo estado + saídas Moore)
+    process(estado_atual, I, btn_qtd, refri, dinheiro)
+    begin
+        -- valores padrão
+        proximo_estado <= estado_atual;
+        inc_q_s  <= '0';
+        coin_s   <= '0';
+        venda_s  <= '0';
+        sel_s    <= refri;
+
+        case estado_atual is
+            when Idle =>
+                if I = '1' then
+                    proximo_estado <= SelecionaQtd;
+                end if;
+
+            when SelecionaQtd =>
+                if btn_qtd = '1' then
+                    inc_q_s <= '1';
+                    proximo_estado <= SelecionaRefri;
+                end if;
+
+            when SelecionaRefri =>
+                if refri = '0' or refri = '1' then
+                    proximo_estado <= AguardaPagamento;
+                end if;
+
+            when AguardaPagamento =>
+                if dinheiro = '1' then
+                    coin_s <= '1';
+                    proximo_estado <= LiberaVenda;
+                end if;
+
+            when LiberaVenda =>
+                venda_s <= '1';
+                proximo_estado <= Idle;
+
+            when others =>
+                proximo_estado <= Idle;
+        end case;
+    end process;
+
+    -- atribuição das saídas
+    inc_q <= inc_q_s;
+    coin  <= coin_s;
+    venda <= venda_s;
+    sel   <= sel_s;
+
+end FSM_Moore_TPM;
