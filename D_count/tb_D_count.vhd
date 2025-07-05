@@ -13,7 +13,8 @@ architecture behavior of tb_D_count is
             clk   : in  STD_LOGIC;
             reset : in  STD_LOGIC;
             coin  : in  STD_LOGIC;
-            D     : out STD_LOGIC_VECTOR(4 downto 0)
+            valor : in  STD_LOGIC_VECTOR(4 downto 0);
+            D     : out STD_LOGIC_VECTOR(8 downto 0)
         );
     end component;
 
@@ -21,7 +22,8 @@ architecture behavior of tb_D_count is
     signal clk   : STD_LOGIC := '0';
     signal reset : STD_LOGIC := '0';
     signal coin  : STD_LOGIC := '0';
-    signal D     : STD_LOGIC_VECTOR(4 downto 0);
+    signal valor : STD_LOGIC_VECTOR(4 downto 0) := (others => '0');
+    signal D     : STD_LOGIC_VECTOR(8 downto 0);
 
     -- Clock de 10 ns (100 MHz)
     constant clk_period : time := 10 ns;
@@ -31,10 +33,11 @@ begin
     -- Instanciação da unidade sob teste
     uut: D_count
         port map (
-            clk => clk,
+            clk   => clk,
             reset => reset,
-            coin => coin,
-            D => D
+            coin  => coin,
+            valor => valor,
+            D     => D
         );
 
     -- Geração do clock
@@ -58,16 +61,37 @@ begin
         reset <= '0';
         wait for 10 ns;
 
-        -- Inserindo moedas
-        coin <= '1';
+        -- Inserindo dinheiro
+        valor <= "00001"; -- 1 real
+        coin  <= '1';
         wait for 10 ns;
-        coin <= '0';
+        coin  <= '0';
         wait for 10 ns;
 
-        coin <= '1';
+        valor <= "00010"; -- 2 reais
+        coin  <= '1';
         wait for 10 ns;
-        coin <= '0';
+        coin  <= '0';
         wait for 10 ns;
+
+        valor <= "00101"; -- 5 reais
+        coin  <= '1';
+        wait for 10 ns;
+        coin  <= '0';
+        wait for 10 ns;
+
+        -- Inserir nota de 10
+        valor <= "01010"; -- 10 reais
+        coin  <= '1';
+        wait for 10 ns;
+        coin  <= '0';
+        wait for 10 ns;
+
+        -- Inserir nota de 20
+        valor <= "10100"; -- 20 reais
+        coin  <= '1';
+        wait for 10 ns;
+        coin  <= '0';
 
         -- Espera sem inserção
         wait for 20 ns;
@@ -76,11 +100,6 @@ begin
         reset <= '1';
         wait for 10 ns;
         reset <= '0';
-
-        -- Inserir mais moedas
-        coin <= '1';
-        wait for 10 ns;
-        coin <= '0';
 
         wait;
     end process;

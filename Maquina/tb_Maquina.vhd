@@ -18,6 +18,7 @@ architecture behavior of tb_Maquina is
             refri    : in  STD_LOGIC;
             btn_qtd  : in  STD_LOGIC;
             dinheiro : in  STD_LOGIC;
+            valor    : in  STD_LOGIC_VECTOR(4 downto 0);
             troco    : out STD_LOGIC_VECTOR(8 downto 0);
             lucro    : out STD_LOGIC_VECTOR(8 downto 0)
         );
@@ -32,6 +33,7 @@ architecture behavior of tb_Maquina is
     signal refri    : STD_LOGIC := '1'; -- Coca-Cola
     signal btn_qtd  : STD_LOGIC := '0';
     signal dinheiro : STD_LOGIC := '0';
+    signal valor    : STD_LOGIC_VECTOR(4 downto 0) := (others => '0');
     signal troco    : STD_LOGIC_VECTOR(8 downto 0);
     signal lucro    : STD_LOGIC_VECTOR(8 downto 0);
 
@@ -50,6 +52,7 @@ begin
             refri    => refri,
             btn_qtd  => btn_qtd,
             dinheiro => dinheiro,
+            valor    => valor,
             troco    => troco,
             lucro    => lucro
         );
@@ -86,13 +89,8 @@ begin
 
         -- Seleciona refrigerante Coca-Cola (refri = '1') já está setado
 
-        -- Insere R$10 (4 ciclos simulando inserções)
-        dinheiro <= '1'; wait for 10 ns;
-        dinheiro <= '0'; wait for 10 ns;
-        dinheiro <= '1'; wait for 10 ns;
-        dinheiro <= '0'; wait for 10 ns;
-        dinheiro <= '1'; wait for 10 ns;
-        dinheiro <= '0'; wait for 10 ns;
+        -- Insere nota de R$10
+        valor <= "01010";
         dinheiro <= '1'; wait for 10 ns;
         dinheiro <= '0'; wait for 10 ns;
 
@@ -112,12 +110,7 @@ begin
         btn_qtd <= '1'; wait for 10 ns;
         btn_qtd <= '0'; wait for 10 ns;
 
-        dinheiro <= '1'; wait for 10 ns;
-        dinheiro <= '0'; wait for 10 ns;
-        dinheiro <= '1'; wait for 10 ns;
-        dinheiro <= '0'; wait for 10 ns;
-        dinheiro <= '1'; wait for 10 ns;
-        dinheiro <= '0'; wait for 10 ns;
+        valor <= "01010";
         dinheiro <= '1'; wait for 10 ns;
         dinheiro <= '0'; wait for 10 ns;
 

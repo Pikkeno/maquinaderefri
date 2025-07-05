@@ -7,12 +7,13 @@ entity Datapath is
         clk     : in  STD_LOGIC;
         reset   : in  STD_LOGIC;
         coin    : in  STD_LOGIC;
+        valor   : in  STD_LOGIC_VECTOR(4 downto 0);
         sel     : in  STD_LOGIC; -- 0: Guaraná, 1: Coca
         preco1  : in  STD_LOGIC_VECTOR(3 downto 0);
         preco2  : in  STD_LOGIC_VECTOR(3 downto 0);
         inc_q   : in  STD_LOGIC;
         venda   : in  STD_LOGIC;
-        troco   : out STD_LOGIC_VECTOR(3 downto 0);
+        troco   : out STD_LOGIC_VECTOR(8 downto 0);
         lucro   : out STD_LOGIC_VECTOR(8 downto 0)
     );
 end Datapath;
@@ -20,13 +21,13 @@ end Datapath;
 architecture Structural of Datapath is
 
     -- Sinais internos
-    signal D_val     : STD_LOGIC_VECTOR(3 downto 0); -- valor de dinheiro inserido
+    signal D_val     : STD_LOGIC_VECTOR(8 downto 0); -- valor de dinheiro inserido
     signal Q_val     : STD_LOGIC_VECTOR(1 downto 0); -- quantidade escolhida
     signal preco_s   : STD_LOGIC_VECTOR(3 downto 0); -- preço unitário selecionado
     signal P_temp    : STD_LOGIC_VECTOR(3 downto 0); -- preço total (antes de extensão)
     signal P_ext     : STD_LOGIC_VECTOR(6 downto 0); -- preço estendido para somador
-    signal D_ext     : STD_LOGIC_VECTOR(3 downto 0); -- valor de entrada estendido (não usado neste exemplo)
-    signal troco_s   : STD_LOGIC_VECTOR(3 downto 0); -- valor do troco
+    signal D_ext     : STD_LOGIC_VECTOR(8 downto 0); -- valor de entrada estendido
+    signal troco_s   : STD_LOGIC_VECTOR(8 downto 0); -- valor do troco
     signal lucro_s   : STD_LOGIC_VECTOR(8 downto 0); -- valor acumulado
 
 begin
@@ -37,6 +38,7 @@ begin
             clk   => clk,
             reset => reset,
             coin  => coin,
+            valor => valor,
             D     => D_val
         );
 

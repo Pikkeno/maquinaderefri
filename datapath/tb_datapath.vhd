@@ -13,6 +13,7 @@ architecture behavior of tb_Datapath is
             clk     : in  STD_LOGIC;
             reset   : in  STD_LOGIC;
             coin    : in  STD_LOGIC;
+            valor   : in  STD_LOGIC_VECTOR(4 downto 0);
             sel     : in  STD_LOGIC;
             preco1  : in  STD_LOGIC_VECTOR(3 downto 0);
             preco2  : in  STD_LOGIC_VECTOR(3 downto 0);
@@ -27,6 +28,7 @@ architecture behavior of tb_Datapath is
     signal clk     : STD_LOGIC := '0';
     signal reset   : STD_LOGIC := '0';
     signal coin    : STD_LOGIC := '0';
+    signal valor   : STD_LOGIC_VECTOR(4 downto 0) := (others => '0');
     signal sel     : STD_LOGIC := '0'; -- Guaraná inicialmente
     signal preco1  : STD_LOGIC_VECTOR(3 downto 0) := "0011"; -- R$3,00
     signal preco2  : STD_LOGIC_VECTOR(3 downto 0) := "0010"; -- R$2,00
@@ -45,6 +47,7 @@ begin
             clk     => clk,
             reset   => reset,
             coin    => coin,
+            valor   => valor,
             sel     => sel,
             preco1  => preco1,
             preco2  => preco2,
@@ -82,11 +85,11 @@ begin
         -- Seleciona Coca-Cola (sel = '1')
         sel <= '1';
 
-        -- Insere 4 cédulas (coin = '1') → R$4,00
-        coin <= '1'; wait for 10 ns; coin <= '0'; wait for 10 ns;
-        coin <= '1'; wait for 10 ns; coin <= '0'; wait for 10 ns;
-        coin <= '1'; wait for 10 ns; coin <= '0'; wait for 10 ns;
-        coin <= '1'; wait for 10 ns; coin <= '0'; wait for 10 ns;
+        -- Insere notas variadas
+        valor <= "00001"; coin <= '1'; wait for 10 ns; coin <= '0'; wait for 10 ns;
+        valor <= "00010"; coin <= '1'; wait for 10 ns; coin <= '0'; wait for 10 ns;
+        valor <= "00101"; coin <= '1'; wait for 10 ns; coin <= '0'; wait for 10 ns;
+        valor <= "01010"; coin <= '1'; wait for 10 ns; coin <= '0'; wait for 10 ns;
 
         -- Finaliza venda
         venda <= '1';
