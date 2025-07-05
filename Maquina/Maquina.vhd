@@ -12,6 +12,7 @@ entity Maquina is
         refri   : in  STD_LOGIC; -- 0: Guaraná, 1: Coca-Cola
         btn_qtd : in  STD_LOGIC; -- botão que incrementa quantidade
         dinheiro: in  STD_LOGIC; -- pulso simulando nota inserida
+        valor   : in  STD_LOGIC_VECTOR(4 downto 0); -- valor da nota/moeda
         troco   : out STD_LOGIC_VECTOR(8 downto 0);
         lucro   : out STD_LOGIC_VECTOR(8 downto 0)
     );
@@ -43,6 +44,7 @@ begin
             clk     => clk,
             reset   => reset,
             coin    => coin_s,
+            valor   => valor,
             sel     => sel_s,
             preco1  => preco1,
             preco2  => preco2,
