@@ -24,7 +24,7 @@ architecture Structural of Datapath is
     signal D_val     : STD_LOGIC_VECTOR(8 downto 0); -- valor de dinheiro inserido
     signal Q_val     : STD_LOGIC_VECTOR(1 downto 0); -- quantidade escolhida
     signal preco_s   : STD_LOGIC_VECTOR(3 downto 0); -- preço unitário selecionado
-    signal P_temp    : STD_LOGIC_VECTOR(3 downto 0); -- preço total (antes de extensão)
+    signal P_temp    : STD_LOGIC_VECTOR(5 downto 0); -- preço total (antes de extensão)
     signal P_ext     : STD_LOGIC_VECTOR(6 downto 0); -- preço estendido para somador
     signal D_ext     : STD_LOGIC_VECTOR(8 downto 0); -- valor de entrada estendido
     signal troco_s   : STD_LOGIC_VECTOR(8 downto 0); -- valor do troco calculado
@@ -70,14 +70,14 @@ begin
         );
 
     -- Extensão para compatibilidade com somador (7 bits)
-    P_ext <= "000" & P_temp;
+    P_ext <= '0' & P_temp;
     D_ext <= D_val;
 
     -- Subtrator para cálculo do troco
     CalculaTroco: entity work.T_count
         port map (
             D_count => D_ext,
-            P_count => P_temp,
+            P_count => P_ext,
             T       => troco_s
         );
 
@@ -90,6 +90,18 @@ begin
             valor  => P_ext,
             total  => lucro_s
         );
+		  
+	-- Registrador para armazenar o troco calculado
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            troco_r <= (others => '0');
+        elsif rising_edge(clk) then
+            if venda = '1' then
+                troco_r <= troco_s;
+            end if;
+        end if;
+    end process;
 
     -- Registrador para armazenar o troco calculado
     process(clk, reset)
