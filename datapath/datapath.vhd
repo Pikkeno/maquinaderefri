@@ -27,8 +27,9 @@ architecture Structural of Datapath is
     signal P_temp    : STD_LOGIC_VECTOR(3 downto 0); -- preço total (antes de extensão)
     signal P_ext     : STD_LOGIC_VECTOR(6 downto 0); -- preço estendido para somador
     signal D_ext     : STD_LOGIC_VECTOR(8 downto 0); -- valor de entrada estendido
-    signal troco_s   : STD_LOGIC_VECTOR(8 downto 0); -- valor do troco
+    signal troco_s   : STD_LOGIC_VECTOR(8 downto 0); -- valor do troco calculado
     signal lucro_s   : STD_LOGIC_VECTOR(8 downto 0); -- valor acumulado
+    signal troco_r   : STD_LOGIC_VECTOR(8 downto 0) := (others => '0'); -- registrador de troco
 
 begin
 
@@ -90,8 +91,20 @@ begin
             total  => lucro_s
         );
 
+    -- Registrador para armazenar o troco calculado
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            troco_r <= (others => '0');
+        elsif rising_edge(clk) then
+            if venda = '1' then
+                troco_r <= troco_s;
+            end if;
+        end if;
+    end process;
+
     -- Saídas finais
-    troco <= troco_s;
+    troco <= troco_r;
     lucro <= lucro_s;
 
 end Structural;
