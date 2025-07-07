@@ -10,7 +10,6 @@ entity Controladora is
         refri     : in  STD_LOGIC;
         btn_qtd   : in  STD_LOGIC;
         dinheiro  : in  STD_LOGIC;
-        ok_qtd    : in  STD_LOGIC;
 
         inc_q     : out STD_LOGIC;
         coin      : out STD_LOGIC;
@@ -26,13 +25,12 @@ architecture FSM_Moore_TPM of Controladora is
     type state_type is (
         Idle,
         SelecionaQtd,
-        PulsoQtd,
+        PulsoQtd,           -- novo estado
         SelecionaRefri,
         AguardaPagamento,
         Espera1,
         Espera2,
         RegistraCompra,
-        EsperaPcount,
         LiberaVenda
     );
 
@@ -55,7 +53,7 @@ begin
     end process;
 
     -- Processo de decisão de próximo estado e sinais
-    process(estado_atual, I, btn_qtd, refri, dinheiro, ok_qtd)
+    process(estado_atual, I, btn_qtd, refri, dinheiro)
     begin
         -- padrões
         proximo_estado <= estado_atual;
@@ -75,7 +73,7 @@ begin
             when SelecionaQtd =>
                 if btn_qtd = '1' then
                     proximo_estado <= PulsoQtd;
-                elsif ok_qtd = '1' then
+                elsif refri = '0' or refri = '1' then
                     proximo_estado <= SelecionaRefri;
                 end if;
 
@@ -100,9 +98,6 @@ begin
 
             when RegistraCompra =>
                 ld_p_s <= '1';
-                proximo_estado <= EsperaPcount;
-
-            when EsperaPcount =>
                 proximo_estado <= LiberaVenda;
 
             when LiberaVenda =>

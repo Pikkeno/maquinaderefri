@@ -36,7 +36,22 @@ architecture Structural of Datapath is
     signal lucro_s   : STD_LOGIC_VECTOR(8 downto 0);
     signal troco_r   : STD_LOGIC_VECTOR(8 downto 0) := (others => '0');
 
+    -- Sincronizadores
+    signal ld_p_sync1, ld_p_sync2 : STD_LOGIC := '0';
+
 begin
+
+    -- Atraso de 2 ciclos para ld_p
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            ld_p_sync1 <= '0';
+            ld_p_sync2 <= '0';
+        elsif rising_edge(clk) then
+            ld_p_sync1 <= ld_p;
+            ld_p_sync2 <= ld_p_sync1;
+        end if;
+    end process;
 
     -- Registrador de dinheiro
     D_counter: entity work.D_count
@@ -89,12 +104,12 @@ begin
     P_ext <= "000" & P_temp;
     D_ext <= D_val;
 
-    -- Registro do valor da compra (sem sincronismo agora!)
+    -- Registro do valor da compra
     RegistraPreco: entity work.P_count
         port map (
             clk   => clk,
             reset => reset,
-            ld    => ld_p,
+            ld    => ld_p_sync2,
             D     => P_ext,
             Q     => P_count
         );
@@ -130,8 +145,8 @@ begin
                 report "VALOR P_EXT = " & integer'image(to_integer(unsigned(P_ext)));
                 report "VALOR P_COUNT = " & integer'image(to_integer(unsigned(P_count)));
                 report "VALOR D_EXT = " & integer'image(to_integer(unsigned(D_ext)));
-                report "preco_reg  = " & integer'image(to_integer(unsigned(preco_reg)));
-                report "qtd_reg    = " & integer'image(to_integer(unsigned(qtd_reg)));
+					 report "preco_reg  = " & integer'image(to_integer(unsigned(preco_reg)));
+					 report "qtd_reg    = " & integer'image(to_integer(unsigned(qtd_reg)));
             end if;
         end if;
     end process;
