@@ -16,7 +16,8 @@ entity Datapath is
         ld_p    : in  STD_LOGIC;
 
         troco   : out STD_LOGIC_VECTOR(8 downto 0);
-        lucro   : out STD_LOGIC_VECTOR(8 downto 0)
+        lucro   : out STD_LOGIC_VECTOR(8 downto 0);
+		  valor_ok  : out STD_LOGIC
     );
 end Datapath;
 
@@ -34,6 +35,7 @@ architecture Structural of Datapath is
     signal D_ext     : STD_LOGIC_VECTOR(8 downto 0);
     signal troco_s   : STD_LOGIC_VECTOR(8 downto 0);
     signal lucro_s   : STD_LOGIC_VECTOR(8 downto 0);
+	 signal valor_ok_s : STD_LOGIC;
     signal troco_r   : STD_LOGIC_VECTOR(8 downto 0) := (others => '0');
 
 begin
@@ -65,6 +67,15 @@ begin
             b   => preco2,
             y   => preco_s
         );
+		  
+		ComparadorValor: entity work.Comparador9bits
+    port map (
+        A => D_ext,
+        B => P_count,
+        MaiorIgual => valor_ok_s
+    );
+	 
+	 valor_ok <= valor_ok_s;
 
     -- Registro das entradas do multiplicador
     process(clk, reset)
@@ -89,7 +100,7 @@ begin
     P_ext <= "000" & P_temp;
     D_ext <= D_val;
 
-    -- Registro do valor da compra (sem sincronismo agora!)
+    -- Registro do valor da compra 
     RegistraPreco: entity work.P_count
         port map (
             clk   => clk,

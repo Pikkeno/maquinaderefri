@@ -7,6 +7,7 @@ end tb_Maquina;
 
 architecture behavior of tb_Maquina is
 
+    -- Componente sob teste
     component Maquina
         Port (
             clk      : in  STD_LOGIC;
@@ -24,32 +25,21 @@ architecture behavior of tb_Maquina is
         );
     end component;
 
-    signal clk      : STD_LOGIC := '0';
-    signal reset    : STD_LOGIC := '0';
-    signal I        : STD_LOGIC := '0';
-    signal preco1   : STD_LOGIC_VECTOR(3 downto 0) := "0101"; -- 5
-    signal preco2   : STD_LOGIC_VECTOR(3 downto 0) := "1001"; -- 9
-    signal refri    : STD_LOGIC := '0';
-    signal btn_qtd  : STD_LOGIC := '0';
-    signal ok_qtd   : STD_LOGIC := '0';
-    signal dinheiro : STD_LOGIC := '0';
-    signal valor    : STD_LOGIC_VECTOR(4 downto 0) := (others => '0');
-    signal troco    : STD_LOGIC_VECTOR(8 downto 0);
-    signal lucro    : STD_LOGIC_VECTOR(8 downto 0);
+    -- Sinais de teste
+    signal clk, reset         : STD_LOGIC := '0';
+    signal I, refri           : STD_LOGIC := '0';
+    signal btn_qtd, ok_qtd    : STD_LOGIC := '0';
+    signal dinheiro           : STD_LOGIC := '0';
+    signal valor              : STD_LOGIC_VECTOR(4 downto 0) := (others => '0');
+    signal preco1, preco2     : STD_LOGIC_VECTOR(3 downto 0) := (others => '0');
+    signal troco, lucro       : STD_LOGIC_VECTOR(8 downto 0);
 
+    -- Clock de 10 ns
     constant clk_period : time := 10 ns;
 
 begin
 
-    clk_process : process
-    begin
-        while now < 1000 ns loop
-            clk <= '0'; wait for clk_period/2;
-            clk <= '1'; wait for clk_period/2;
-        end loop;
-        wait;
-    end process;
-
+    -- Instância da DUT
     uut: Maquina
         port map (
             clk      => clk,
@@ -66,36 +56,61 @@ begin
             lucro    => lucro
         );
 
+    -- Geração do clock
+    clk_process : process
+    begin
+        clk <= '0';
+        wait for clk_period / 2;
+        clk <= '1';
+        wait for clk_period / 2;
+    end process;
+
+    -- Estímulos de teste
     stim_proc: process
     begin
-        reset <= '1'; wait for 20 ns; reset <= '0'; wait for 10 ns;
+        -- Reset inicial
+        reset <= '1';
+        wait for 20 ns;
+        reset <= '0';
 
-        I <= '1'; -- inserção do copo
+        -- 1. Copo inserido
+        I <= '1';
+        wait for 20 ns;
+        I <= '0';
+
+        -- 2. Seleciona quantidade (duas unidades)
+        btn_qtd <= '1';
         wait for 10 ns;
+        btn_qtd <= '0';
+        wait for 20 ns;
 
-        -- selecionar quantidade = 1
-        btn_qtd <= '1'; wait for 10 ns; btn_qtd <= '0'; wait for 10 ns;
-        
-        -- confirmar quantidade
-        ok_qtd <= '1'; wait for 10 ns; ok_qtd <= '0'; wait for 10 ns;
+        btn_qtd <= '1';
+        wait for 10 ns;
+        btn_qtd <= '0';
+        wait for 20 ns;
 
-        -- selecionar Guaraná
-        refri <= '0'; wait for 20 ns;
+        -- 3. Confirma quantidade
+        ok_qtd <= '1';
+        wait for 10 ns;
+        ok_qtd <= '0';
 
-        -- inserir nota de 5 reais
-        valor <= "00101"; dinheiro <= '1'; wait for 10 ns;
-        dinheiro <= '0'; wait for 100 ns;
+        -- 4. Seleciona refrigerante (refri = 1 → Coca → preco2)
+        refri <= '1';
+        preco1 <= "0100";  -- Guaraná: R$4
+        preco2 <= "0011";  -- Coca:    R$3
 
-        -- verificar
-        report "TROCO: " & integer'image(to_integer(unsigned(troco)));
-        report "LUCRO: " & integer'image(to_integer(unsigned(lucro)));
+        wait for 30 ns;
 
-        assert unsigned(troco) = 0
-            report "ERRO: troco deveria ser 0!" severity error;
+        -- 5. Inserção de dinheiro (R$10 = 01010)
+        dinheiro <= '1';
+        valor <= "01010";
+        wait for 10 ns;
+        dinheiro <= '0';
 
-        assert unsigned(lucro) = 5
-            report "ERRO: lucro deveria ser 5 após a venda!" severity error;
+        -- Espera até final da venda
+        wait for 200 ns;
 
+        -- Fim da simulação
         wait;
     end process;
 

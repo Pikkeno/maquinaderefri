@@ -22,6 +22,7 @@ end Maquina;
 architecture Structural of Maquina is
     -- sinais de controle da FSM para o Datapath
     signal inc_q_s, coin_s, venda_s, sel_s, ld_p_s : STD_LOGIC;
+    signal valor_ok_s : STD_LOGIC;  -- NOVO sinal interno
 begin
 
     -- Unidade de Controle (FSM)
@@ -32,8 +33,9 @@ begin
             I         => I,
             refri     => refri,
             btn_qtd   => btn_qtd,
-            ok_qtd    => ok_qtd,     -- NOVO sinal conectado
+            ok_qtd    => ok_qtd,
             dinheiro  => dinheiro,
+            valor_ok  => valor_ok_s,  
             inc_q     => inc_q_s,
             coin      => coin_s,
             venda     => venda_s,
@@ -45,17 +47,19 @@ begin
     -- Caminho de Dados
     DP: entity work.Datapath
         port map (
-            clk     => clk,
-            reset   => reset,
-            coin    => coin_s,
-            valor   => valor,
-            sel     => sel_s,
-            preco1  => preco1,
-            preco2  => preco2,
-            inc_q   => inc_q_s,
-            venda   => venda_s,
-            ld_p    => ld_p_s,
-            troco   => troco,
-            lucro   => lucro
+            clk      => clk,
+            reset    => reset,
+            coin     => coin_s,
+            valor    => valor,
+            sel      => sel_s,
+            preco1   => preco1,
+            preco2   => preco2,
+            inc_q    => inc_q_s,
+            venda    => venda_s,
+            ld_p     => ld_p_s,
+            troco    => troco,
+            lucro    => lucro,
+            valor_ok => valor_ok_s   
         );
 end Structural;
+

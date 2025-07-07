@@ -9,8 +9,9 @@ entity Controladora is
         I         : in  STD_LOGIC;
         refri     : in  STD_LOGIC;
         btn_qtd   : in  STD_LOGIC;
-        dinheiro  : in  STD_LOGIC;
         ok_qtd    : in  STD_LOGIC;
+        dinheiro  : in  STD_LOGIC;
+        valor_ok  : in  STD_LOGIC;
 
         inc_q     : out STD_LOGIC;
         coin      : out STD_LOGIC;
@@ -28,6 +29,7 @@ architecture FSM_Moore_TPM of Controladora is
         SelecionaQtd,
         PulsoQtd,
         SelecionaRefri,
+        CalculaPreco,       -- NOVO ESTADO
         AguardaPagamento,
         Espera1,
         Espera2,
@@ -55,7 +57,7 @@ begin
     end process;
 
     -- Processo de decisão de próximo estado e sinais
-    process(estado_atual, I, btn_qtd, refri, dinheiro, ok_qtd)
+    process(estado_atual, I, btn_qtd, refri, dinheiro, ok_qtd, valor_ok)
     begin
         -- padrões
         proximo_estado <= estado_atual;
@@ -84,11 +86,19 @@ begin
                 proximo_estado <= SelecionaQtd;
 
             when SelecionaRefri =>
+                proximo_estado <= CalculaPreco;
+
+            when CalculaPreco =>
+                ld_p_s <= '1';
+                proximo_estado <= EsperaPcount;
+
+            when EsperaPcount =>
                 proximo_estado <= AguardaPagamento;
 
             when AguardaPagamento =>
                 if dinheiro = '1' then
                     coin_s <= '1';
+                elsif valor_ok = '1' then
                     proximo_estado <= Espera1;
                 end if;
 
@@ -99,10 +109,7 @@ begin
                 proximo_estado <= RegistraCompra;
 
             when RegistraCompra =>
-                ld_p_s <= '1';
-                proximo_estado <= EsperaPcount;
-
-            when EsperaPcount =>
+                -- ld_p_s já foi ativado antes
                 proximo_estado <= LiberaVenda;
 
             when LiberaVenda =>
