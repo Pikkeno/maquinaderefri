@@ -56,12 +56,12 @@ begin
 
     -- MUX seleciona o preço com base em 'sel'
     SelecionaPreco: entity work.Mux
-        port map (
-            sel => sel,
-            a   => preco2,  -- Guaraná
-            b   => preco1,  -- Coca
-            y   => preco_s
-        );
+    port map (
+        sel => sel,
+        a   => preco1,  -- Guaraná
+        b   => preco2,  -- Coca
+        y   => preco_s
+    );
 
     -- Multiplicador calcula o preço total da compra
     CalculaPreco: entity work.Multiplicador

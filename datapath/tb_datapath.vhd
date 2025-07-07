@@ -19,6 +19,7 @@ architecture behavior of tb_Datapath is
             preco2  : in  STD_LOGIC_VECTOR(3 downto 0);
             inc_q   : in  STD_LOGIC;
             venda   : in  STD_LOGIC;
+            ld_p    : in  STD_LOGIC;
             troco   : out STD_LOGIC_VECTOR(8 downto 0);
             lucro   : out STD_LOGIC_VECTOR(8 downto 0)
         );
@@ -34,6 +35,7 @@ architecture behavior of tb_Datapath is
     signal preco2  : STD_LOGIC_VECTOR(3 downto 0) := "0010"; -- R$2,00
     signal inc_q   : STD_LOGIC := '0';
     signal venda   : STD_LOGIC := '0';
+    signal ld_p    : STD_LOGIC := '0';
     signal troco   : STD_LOGIC_VECTOR(8 downto 0);
     signal lucro   : STD_LOGIC_VECTOR(8 downto 0);
 
@@ -53,6 +55,7 @@ begin
             preco2  => preco2,
             inc_q   => inc_q,
             venda   => venda,
+            ld_p    => ld_p,
             troco   => troco,
             lucro   => lucro
         );
@@ -67,37 +70,45 @@ begin
         wait;
     end process;
 
-    -- Estímulo
+    -- Estímulo principal
     stim_proc: process
     begin
-        -- Reset inicial
+        -- Reset
         reset <= '1';
         wait for 20 ns;
         reset <= '0';
         wait for 10 ns;
 
-        -- Incrementa quantidade: 2 vezes (600 mL)
-        inc_q <= '1'; wait for 10 ns;
-        inc_q <= '0'; wait for 10 ns;
-        inc_q <= '1'; wait for 10 ns;
-        inc_q <= '0'; wait for 10 ns;
+        -- Incrementa quantidade: 2x Coca-Cola (2 x R$2 = 4)
+        inc_q <= '1'; wait for 10 ns; inc_q <= '0'; wait for 10 ns;
+        inc_q <= '1'; wait for 10 ns; inc_q <= '0'; wait for 10 ns;
 
-        -- Seleciona Coca-Cola (sel = '1')
+        -- Seleciona Coca-Cola
         sel <= '1';
 
-        -- Insere notas variadas
-        valor <= "00001"; coin <= '1'; wait for 10 ns; coin <= '0'; wait for 10 ns;
-        valor <= "00010"; coin <= '1'; wait for 10 ns; coin <= '0'; wait for 10 ns;
-        valor <= "00101"; coin <= '1'; wait for 10 ns; coin <= '0'; wait for 10 ns;
-        valor <= "01010"; coin <= '1'; wait for 10 ns; coin <= '0'; wait for 10 ns;
+        -- Insere R$18,00 em partes
+        valor <= "00001"; coin <= '1'; wait for 10 ns; coin <= '0'; wait for 10 ns; -- 1
+        valor <= "00010"; coin <= '1'; wait for 10 ns; coin <= '0'; wait for 10 ns; -- 2
+        valor <= "00101"; coin <= '1'; wait for 10 ns; coin <= '0'; wait for 10 ns; -- 5
+        valor <= "01010"; coin <= '1'; wait for 10 ns; coin <= '0'; wait for 10 ns; -- 10
+
+        -- Carrega o preço total da compra (2 x 2 = 4)
+        ld_p <= '1'; wait for 10 ns;
+        ld_p <= '0'; wait for 10 ns;
 
         -- Finaliza venda
-        venda <= '1';
-        wait for 10 ns;
-        venda <= '0';
+        venda <= '1'; wait for 10 ns;
+        venda <= '0'; wait for 50 ns;
 
-        -- Espera resultado
-        wait for 50 ns;
+        -- Verificações
+        report "TROCO = " & integer'image(to_integer(unsigned(troco)));
+        report "LUCRO = " & integer'image(to_integer(unsigned(lucro)));
+
+        assert unsigned(troco) = 14
+            report "ERRO: troco deveria ser 14 (18 - 4)" severity error;
+
+        assert unsigned(lucro) = 4
+            report "ERRO: lucro deveria ser 4 (2 x 2)" severity error;
 
         wait;
     end process;

@@ -16,29 +16,30 @@ entity Controladora is
         venda     : out STD_LOGIC;
         sel       : out STD_LOGIC;
         ld_lucro  : out STD_LOGIC;
-        ld_p      : out STD_LOGIC  -- novo sinal: carregar P_count (preço total da compra)
+        ld_p      : out STD_LOGIC
     );
 end Controladora;
 
 architecture FSM_Moore_TPM of Controladora is
 
     type state_type is (
-        Idle,               -- Espera o copo (I=1)
-        SelecionaQtd,       -- Cliente seleciona quantidade
-        SelecionaRefri,     -- Cliente seleciona refri
-        AguardaPagamento,   -- Espera inserir dinheiro suficiente
-        LiberaVenda         -- Libera bebida e atualiza lucro
+        Idle,
+        SelecionaQtd,
+        SelecionaRefri,
+        AguardaPagamento,
+        RegistraCompra,  -- novo estado
+        LiberaVenda
     );
 
     signal estado_atual, proximo_estado : state_type;
 
-    -- sinais internos de saída
+    -- sinais internos
     signal inc_q_s, coin_s, venda_s, ld_lucro_s, ld_p_s : STD_LOGIC;
     signal sel_s : STD_LOGIC;
 
 begin
 
-    -- PROCESSO 1: Registrador de estado
+    -- Processo de transição de estado
     process(clk, reset)
     begin
         if reset = '1' then
@@ -48,7 +49,7 @@ begin
         end if;
     end process;
 
-    -- PROCESSO 2: Lógica combinacional (próximo estado + saídas Moore)
+    -- Processo combinacional: próxima transição e sinais de controle
     process(estado_atual, I, btn_qtd, refri, dinheiro)
     begin
         -- valores padrão
@@ -79,13 +80,16 @@ begin
             when AguardaPagamento =>
                 if dinheiro = '1' then
                     coin_s <= '1';
-                    proximo_estado <= LiberaVenda;
+                    proximo_estado <= RegistraCompra;
                 end if;
 
+            when RegistraCompra =>
+                ld_p_s <= '1';
+                proximo_estado <= LiberaVenda;
+
             when LiberaVenda =>
-                venda_s     <= '1';
-                ld_lucro_s  <= '1';
-                ld_p_s      <= '1'; -- carrega o preço total da compra
+                venda_s    <= '1';
+                ld_lucro_s <= '1';
                 proximo_estado <= Idle;
 
             when others =>
@@ -93,7 +97,7 @@ begin
         end case;
     end process;
 
-    -- Atribuições finais das saídas
+    -- Saídas
     inc_q    <= inc_q_s;
     coin     <= coin_s;
     venda    <= venda_s;
