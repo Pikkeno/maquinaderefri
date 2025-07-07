@@ -13,6 +13,7 @@ entity Datapath is
         preco2  : in  STD_LOGIC_VECTOR(3 downto 0);
         inc_q   : in  STD_LOGIC;
         venda   : in  STD_LOGIC;
+        ld_p    : in  STD_LOGIC; -- novo sinal para carregar o preço total
         troco   : out STD_LOGIC_VECTOR(8 downto 0);
         lucro   : out STD_LOGIC_VECTOR(8 downto 0)
     );
@@ -21,19 +22,20 @@ end Datapath;
 architecture Structural of Datapath is
 
     -- Sinais internos
-    signal D_val     : STD_LOGIC_VECTOR(8 downto 0); -- valor de dinheiro inserido
-    signal Q_val     : STD_LOGIC_VECTOR(1 downto 0); -- quantidade escolhida
-    signal preco_s   : STD_LOGIC_VECTOR(3 downto 0); -- preço unitário selecionado
+    signal D_val     : STD_LOGIC_VECTOR(8 downto 0); -- dinheiro inserido
+    signal Q_val     : STD_LOGIC_VECTOR(1 downto 0); -- quantidade
+    signal preco_s   : STD_LOGIC_VECTOR(3 downto 0); -- preço unitário
     signal P_temp    : STD_LOGIC_VECTOR(5 downto 0); -- preço total (6 bits)
-    signal P_ext     : STD_LOGIC_VECTOR(8 downto 0); -- preço estendido para somador (corrigido)
-    signal D_ext     : STD_LOGIC_VECTOR(8 downto 0); -- valor de entrada estendido
-    signal troco_s   : STD_LOGIC_VECTOR(8 downto 0); -- valor do troco calculado
-    signal lucro_s   : STD_LOGIC_VECTOR(8 downto 0); -- valor acumulado
-    signal troco_r   : STD_LOGIC_VECTOR(8 downto 0) := (others => '0'); -- registrador de troco
+    signal P_ext     : STD_LOGIC_VECTOR(8 downto 0); -- extensão de P_temp
+    signal P_count   : STD_LOGIC_VECTOR(8 downto 0); -- valor registrado da compra
+    signal D_ext     : STD_LOGIC_VECTOR(8 downto 0); -- dinheiro estendido
+    signal troco_s   : STD_LOGIC_VECTOR(8 downto 0); -- troco calculado
+    signal lucro_s   : STD_LOGIC_VECTOR(8 downto 0); -- lucro acumulado
+    signal troco_r   : STD_LOGIC_VECTOR(8 downto 0) := (others => '0');
 
 begin
 
-    -- Registrador de dinheiro (D_count)
+    -- Dinheiro inserido
     D_counter: entity work.D_count
         port map (
             clk   => clk,
@@ -43,7 +45,7 @@ begin
             D     => D_val
         );
 
-    -- Registrador de quantidade (Q_count)
+    -- Quantidade selecionada
     Q_counter: entity work.Q_count
         port map (
             clk       => clk,
@@ -52,16 +54,16 @@ begin
             Q         => Q_val
         );
 
-    -- Multiplexador para selecionar preço
+    -- MUX seleciona o preço com base em 'sel'
     SelecionaPreco: entity work.Mux
-    port map (
-        sel => sel,
-        a   => preco2,  -- Guaraná (sel = 0)
-        b   => preco1,  -- Coca (sel = 1)
-        y   => preco_s
-    );
+        port map (
+            sel => sel,
+            a   => preco2,  -- Guaraná
+            b   => preco1,  -- Coca
+            y   => preco_s
+        );
 
-    -- Multiplicador: preco_unitario * quantidade
+    -- Multiplicador calcula o preço total da compra
     CalculaPreco: entity work.Multiplicador
         port map (
             preco_unitario => preco_s,
@@ -69,29 +71,39 @@ begin
             resultado      => P_temp
         );
 
-    -- Extensão correta para 9 bits
-    P_ext <= "000" & P_temp;  -- 3 zeros + 6 bits = 9 bits
+    -- Extensão para 9 bits
+    P_ext <= "000" & P_temp;
     D_ext <= D_val;
 
-    -- Subtrator para cálculo do troco
+    -- Registrador P_count armazena o valor total da compra
+    RegistraPreco: entity work.P_count
+        port map (
+            clk   => clk,
+            reset => reset,
+            ld    => ld_p,
+            D     => P_ext,
+            Q     => P_count
+        );
+
+    -- Subtrator calcula o troco: troco = dinheiro - preço
     CalculaTroco: entity work.Subtrator
         port map (
             D => D_ext,
-            P => P_ext,
+            P => P_count,
             T => troco_s
         );
 
-    -- Somador para acumular lucro
+    -- Somador acumula o lucro
     AcumulaLucro: entity work.L_count
         port map (
             clk    => clk,
             reset  => reset,
             enable => venda,
-            valor  => P_ext,
+            valor  => P_count,
             total  => lucro_s
         );
 
-    -- Registrador para armazenar o troco calculado
+    -- Registrador de troco
     process(clk, reset)
     begin
         if reset = '1' then
@@ -103,7 +115,7 @@ begin
         end if;
     end process;
 
-    -- Saídas finais
+    -- Saídas
     troco <= troco_r;
     lucro <= lucro_s;
 

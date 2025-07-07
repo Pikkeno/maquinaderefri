@@ -7,7 +7,6 @@ end tb_Maquina;
 
 architecture behavior of tb_Maquina is
 
-    -- Componente a ser testado
     component Maquina
         Port (
             clk      : in  STD_LOGIC;
@@ -24,24 +23,28 @@ architecture behavior of tb_Maquina is
         );
     end component;
 
-    -- Sinais
     signal clk      : STD_LOGIC := '0';
     signal reset    : STD_LOGIC := '0';
     signal I        : STD_LOGIC := '0';
-    signal preco1   : STD_LOGIC_VECTOR(3 downto 0) := "0011"; -- R$3,00 por 300 mL (Coca)
-    signal preco2   : STD_LOGIC_VECTOR(3 downto 0) := "0010"; -- R$2,00 por 300 mL (Guaraná)
-    signal refri    : STD_LOGIC := '0'; -- sem seleção inicial
+    signal preco1   : STD_LOGIC_VECTOR(3 downto 0) := (others => '0');
+    signal preco2   : STD_LOGIC_VECTOR(3 downto 0) := (others => '0');
+    signal refri    : STD_LOGIC := '0';
     signal btn_qtd  : STD_LOGIC := '0';
     signal dinheiro : STD_LOGIC := '0';
     signal valor    : STD_LOGIC_VECTOR(4 downto 0) := (others => '0');
     signal troco    : STD_LOGIC_VECTOR(8 downto 0);
     signal lucro    : STD_LOGIC_VECTOR(8 downto 0);
 
-    constant clk_period : time := 10 ns;
-
 begin
 
-    -- Instanciação da UUT
+    -- Clock 10ns período
+    clk_process : process
+    begin
+        clk <= '0'; wait for 5 ns;
+        clk <= '1'; wait for 5 ns;
+    end process;
+
+    -- Instância da Máquina
     uut: Maquina
         port map (
             clk      => clk,
@@ -57,68 +60,50 @@ begin
             lucro    => lucro
         );
 
-    -- Clock process
-    clk_process : process
-    begin
-        while now < 500 ns loop
-            clk <= '0';
-            wait for clk_period/2;
-            clk <= '1';
-            wait for clk_period/2;
-        end loop;
-        wait;
-    end process;
-
-    -- Estímulo principal
     stim_proc: process
     begin
-        -- Inicialização
+        -- Reset inicial
         reset <= '1';
         wait for 20 ns;
         reset <= '0';
+        wait for 10 ns;
 
-        -- Inserção do copo (ativa o sensor I)
+        -- Define preços
+        preco1 <= "0101"; -- Guaraná = 5
+        preco2 <= "1001"; -- Coca = 9
+
+        -- Inserir copo
         I <= '1';
+        wait for 40 ns;
+
+        -- Seleciona 1 unidade
+        btn_qtd <= '1';
+        wait for 10 ns;
+        btn_qtd <= '0';
         wait for 20 ns;
 
-        -- Seleciona quantidade (2x incrementa => 600 mL)
-        btn_qtd <= '1'; wait for 10 ns;
-        btn_qtd <= '0'; wait for 10 ns;
-        btn_qtd <= '1'; wait for 10 ns;
-        btn_qtd <= '0'; wait for 10 ns;
+        -- Seleciona Guaraná
+        refri <= '0';
+        wait for 20 ns;
 
-        -- Seleciona refrigerante Coca-Cola
-        refri <= '1'; wait for 10 ns;
-
-        -- Insere nota de R$10
-        valor <= "01010";
-        dinheiro <= '1'; wait for 10 ns;
-        dinheiro <= '0'; wait for 10 ns;
-
-        -- Aguarda processamento da venda e troco
+        -- Insere dinheiro (5)
+        dinheiro <= '1';
+        valor <= "00101"; -- 5
+        wait for 10 ns;
+        dinheiro <= '0';
         wait for 100 ns;
 
-        -- Próxima compra: Guaraná, 900 mL, insere R$10
-        I <= '0'; wait for 20 ns;
-        I <= '1'; wait for 20 ns;
+        -- Verificação
+        report "TROCO: " & integer'image(to_integer(unsigned(troco)));
+        report "LUCRO: " & integer'image(to_integer(unsigned(lucro)));
 
-        btn_qtd <= '1'; wait for 10 ns;
-        btn_qtd <= '0'; wait for 10 ns;
-        btn_qtd <= '1'; wait for 10 ns;
-        btn_qtd <= '0'; wait for 10 ns;
-        btn_qtd <= '1'; wait for 10 ns;
-        btn_qtd <= '0'; wait for 10 ns;
+        assert unsigned(lucro) = 5
+            report "ERRO: lucro deveria ser 5 após a venda!" severity error;
 
-        -- Seleciona refrigerante Guaraná
-        refri <= '0'; wait for 10 ns;
+        assert unsigned(troco) = 0
+            report "ERRO: troco deveria ser 0!" severity error;
 
-        valor <= "01010";
-        dinheiro <= '1'; wait for 10 ns;
-        dinheiro <= '0'; wait for 10 ns;
-
-        -- Espera final
         wait;
-
     end process;
 
 end behavior;

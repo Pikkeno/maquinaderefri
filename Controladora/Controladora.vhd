@@ -15,7 +15,8 @@ entity Controladora is
         coin      : out STD_LOGIC;
         venda     : out STD_LOGIC;
         sel       : out STD_LOGIC;
-        ld_lucro  : out STD_LOGIC   -- novo sinal de controle
+        ld_lucro  : out STD_LOGIC;
+        ld_p      : out STD_LOGIC  -- novo sinal: carregar P_count (preço total da compra)
     );
 end Controladora;
 
@@ -32,7 +33,7 @@ architecture FSM_Moore_TPM of Controladora is
     signal estado_atual, proximo_estado : state_type;
 
     -- sinais internos de saída
-    signal inc_q_s, coin_s, venda_s, ld_lucro_s : STD_LOGIC;
+    signal inc_q_s, coin_s, venda_s, ld_lucro_s, ld_p_s : STD_LOGIC;
     signal sel_s : STD_LOGIC;
 
 begin
@@ -52,11 +53,12 @@ begin
     begin
         -- valores padrão
         proximo_estado <= estado_atual;
-        inc_q_s    <= '0';
-        coin_s     <= '0';
-        venda_s    <= '0';
-        ld_lucro_s <= '0';
-        sel_s      <= refri;
+        inc_q_s     <= '0';
+        coin_s      <= '0';
+        venda_s     <= '0';
+        ld_lucro_s  <= '0';
+        ld_p_s      <= '0';
+        sel_s       <= refri;
 
         case estado_atual is
             when Idle =>
@@ -81,8 +83,9 @@ begin
                 end if;
 
             when LiberaVenda =>
-                venda_s    <= '1';
-                ld_lucro_s <= '1'; -- ATIVA O REGISTRADOR DE LUCRO
+                venda_s     <= '1';
+                ld_lucro_s  <= '1';
+                ld_p_s      <= '1'; -- carrega o preço total da compra
                 proximo_estado <= Idle;
 
             when others =>
@@ -90,11 +93,12 @@ begin
         end case;
     end process;
 
-    -- atribuição das saídas
+    -- Atribuições finais das saídas
     inc_q    <= inc_q_s;
     coin     <= coin_s;
     venda    <= venda_s;
     sel      <= sel_s;
     ld_lucro <= ld_lucro_s;
+    ld_p     <= ld_p_s;
 
 end FSM_Moore_TPM;
