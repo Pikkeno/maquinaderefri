@@ -65,13 +65,13 @@ begin
             when SelecionaQtd =>
                 if btn_qtd = '1' then
                     inc_q_s <= '1';
+                elsif refri = '0' or refri = '1' then
                     proximo_estado <= SelecionaRefri;
                 end if;
 
             when SelecionaRefri =>
-                if refri = '0' or refri = '1' then
-                    proximo_estado <= AguardaPagamento;
-                end if;
+                -- Avança imediatamente para pagamento ao receber a escolha
+                proximo_estado <= AguardaPagamento;
 
             when AguardaPagamento =>
                 if dinheiro = '1' then

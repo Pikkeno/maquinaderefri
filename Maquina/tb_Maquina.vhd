@@ -30,7 +30,7 @@ architecture behavior of tb_Maquina is
     signal I        : STD_LOGIC := '0';
     signal preco1   : STD_LOGIC_VECTOR(3 downto 0) := "0011"; -- R$3,00 por 300 mL (Coca)
     signal preco2   : STD_LOGIC_VECTOR(3 downto 0) := "0010"; -- R$2,00 por 300 mL (Guaraná)
-    signal refri    : STD_LOGIC := '1'; -- Coca-Cola
+    signal refri    : STD_LOGIC := '0'; -- sem seleção inicial
     signal btn_qtd  : STD_LOGIC := '0';
     signal dinheiro : STD_LOGIC := '0';
     signal valor    : STD_LOGIC_VECTOR(4 downto 0) := (others => '0');
@@ -87,7 +87,8 @@ begin
         btn_qtd <= '1'; wait for 10 ns;
         btn_qtd <= '0'; wait for 10 ns;
 
-        -- Seleciona refrigerante Coca-Cola (refri = '1') já está setado
+        -- Seleciona refrigerante Coca-Cola
+        refri <= '1'; wait for 10 ns;
 
         -- Insere nota de R$10
         valor <= "01010";
@@ -101,14 +102,15 @@ begin
         I <= '0'; wait for 20 ns;
         I <= '1'; wait for 20 ns;
 
-        refri <= '0'; -- Guaraná
+        btn_qtd <= '1'; wait for 10 ns;
+        btn_qtd <= '0'; wait for 10 ns;
+        btn_qtd <= '1'; wait for 10 ns;
+        btn_qtd <= '0'; wait for 10 ns;
+        btn_qtd <= '1'; wait for 10 ns;
+        btn_qtd <= '0'; wait for 10 ns;
 
-        btn_qtd <= '1'; wait for 10 ns;
-        btn_qtd <= '0'; wait for 10 ns;
-        btn_qtd <= '1'; wait for 10 ns;
-        btn_qtd <= '0'; wait for 10 ns;
-        btn_qtd <= '1'; wait for 10 ns;
-        btn_qtd <= '0'; wait for 10 ns;
+        -- Seleciona refrigerante Guaraná
+        refri <= '0'; wait for 10 ns;
 
         valor <= "01010";
         dinheiro <= '1'; wait for 10 ns;
