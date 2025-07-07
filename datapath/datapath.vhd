@@ -91,18 +91,6 @@ begin
             total  => lucro_s
         );
 		  
-	-- Registrador para armazenar o troco calculado
-    process(clk, reset)
-    begin
-        if reset = '1' then
-            troco_r <= (others => '0');
-        elsif rising_edge(clk) then
-            if venda = '1' then
-                troco_r <= troco_s;
-            end if;
-        end if;
-    end process;
-
     -- Registrador para armazenar o troco calculado
     process(clk, reset)
     begin
