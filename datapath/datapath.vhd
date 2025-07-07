@@ -74,11 +74,11 @@ begin
     D_ext <= D_val;
 
     -- Subtrator para cálculo do troco
-    CalculaTroco: entity work.T_count
+    CalculaTroco: entity work.Subtrator
         port map (
-            D_count => D_ext,
-            P_count => P_ext,
-            T       => troco_s
+            D => D_ext,
+            P => P_ext,
+            T => troco_s
         );
 
     -- Somador para acumular lucro
