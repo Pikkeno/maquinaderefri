@@ -78,7 +78,9 @@ begin
         -- Etapa 1: inserção do copo
         I <= '1'; wait for 10 ns;
 
-        -- Etapa 2: seleção da quantidade
+        -- Etapa 2: seleção da quantidade (duas escolhas)
+        btn_qtd <= '1'; wait for 10 ns;
+        btn_qtd <= '0'; wait for 10 ns;
         btn_qtd <= '1'; wait for 10 ns;
         btn_qtd <= '0'; wait for 10 ns;
 
