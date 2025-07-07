@@ -7,7 +7,7 @@ entity Datapath is
         clk     : in  STD_LOGIC;
         reset   : in  STD_LOGIC;
         coin    : in  STD_LOGIC;
-        valor   : in  STD_LOGIC_VECTOR(4 downto 0);
+        valor   : in  STD_LOGIC_VECTOR(4 downto 0); -- dinheiro inserido
         sel     : in  STD_LOGIC; -- 0: Guaraná, 1: Coca
         preco1  : in  STD_LOGIC_VECTOR(3 downto 0);
         preco2  : in  STD_LOGIC_VECTOR(3 downto 0);
@@ -24,8 +24,8 @@ architecture Structural of Datapath is
     signal D_val     : STD_LOGIC_VECTOR(8 downto 0); -- valor de dinheiro inserido
     signal Q_val     : STD_LOGIC_VECTOR(1 downto 0); -- quantidade escolhida
     signal preco_s   : STD_LOGIC_VECTOR(3 downto 0); -- preço unitário selecionado
-    signal P_temp    : STD_LOGIC_VECTOR(5 downto 0); -- preço total (antes de extensão)
-    signal P_ext     : STD_LOGIC_VECTOR(6 downto 0); -- preço estendido para somador
+    signal P_temp    : STD_LOGIC_VECTOR(5 downto 0); -- preço total (6 bits)
+    signal P_ext     : STD_LOGIC_VECTOR(8 downto 0); -- preço estendido para somador (corrigido)
     signal D_ext     : STD_LOGIC_VECTOR(8 downto 0); -- valor de entrada estendido
     signal troco_s   : STD_LOGIC_VECTOR(8 downto 0); -- valor do troco calculado
     signal lucro_s   : STD_LOGIC_VECTOR(8 downto 0); -- valor acumulado
@@ -54,12 +54,12 @@ begin
 
     -- Multiplexador para selecionar preço
     SelecionaPreco: entity work.Mux
-        port map (
-            sel => sel,
-            a   => preco1,
-            b   => preco2,
-            y   => preco_s
-        );
+    port map (
+        sel => sel,
+        a   => preco2,  -- Guaraná (sel = 0)
+        b   => preco1,  -- Coca (sel = 1)
+        y   => preco_s
+    );
 
     -- Multiplicador: preco_unitario * quantidade
     CalculaPreco: entity work.Multiplicador
@@ -69,8 +69,8 @@ begin
             resultado      => P_temp
         );
 
-    -- Extensão para compatibilidade com somador (7 bits)
-    P_ext <= '0' & P_temp;
+    -- Extensão correta para 9 bits
+    P_ext <= "000" & P_temp;  -- 3 zeros + 6 bits = 9 bits
     D_ext <= D_val;
 
     -- Subtrator para cálculo do troco
@@ -90,7 +90,7 @@ begin
             valor  => P_ext,
             total  => lucro_s
         );
-		  
+
     -- Registrador para armazenar o troco calculado
     process(clk, reset)
     begin
